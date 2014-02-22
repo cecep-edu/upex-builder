@@ -1,0 +1,75 @@
+{
+  "variables": {
+    "ssh_user": "upex",
+    "ssh_pass": "upex",
+    "hostname": "upex-dev",
+    "home": "{{ env `HOME`}}"
+  },
+  "builders": [
+		{
+      "type": "docker",
+      "image": "ubuntu:12.04",
+      "export_path": "upe-test-redis.tar"
+    },
+
+    {
+      "type": "virtualbox-ovf",
+
+      "vm_name": "{{user `home`}}",
+
+      "source_path": "/home/apardo/Documentos/vagrant_default_1393011699807_27376.ova",
+      "format": "ova",
+
+      "ssh_password": "{{user `ssh_pass`}}",
+      "ssh_port": 22,
+      "ssh_username": "{{user `ssh_user`}}",
+      "ssh_key_path": "{{user `home`}}/.vagrant.d/insecure_private_key",
+      "ssh_wait_timeout": "10000s",
+
+      "headless": false,
+
+      "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'upex'|sudo -S sh 'shutdown.sh'",
+
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "2048"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ]
+      ],
+      "virtualbox_version_file": ".vbox_version"
+    }
+
+
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'upex' | sudo -S sh '{{ .Path }}'",
+
+      "inline": [
+        "sleep 30",
+        "echo 'upex ALL=NOPASSWD:ALL' > /tmp/upex",
+        "chmod 0440 /tmp/upex",
+        "mv /tmp/upex /etc/sudoers.d/",
+        "sudo apt-get update -y",
+        "sudo apt-get upgrade -y",
+        "sudo apt-get install build-essential -y",
+        "sudo apt-get clean"
+      ]
+    }
+  ], 
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "only": ["virtualbox-ovf"]
+    }
+  ]
+}
