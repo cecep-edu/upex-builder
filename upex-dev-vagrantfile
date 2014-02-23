@@ -1,24 +1,24 @@
 MEMORY = 2048
 CPU_COUNT = 2
 
-edx_platform_mount_dir = "edx-platform"
-forum_mount_dir = "cs_comments_service"
-ora_mount_dir = "ora"
-
-if ENV['VAGRANT_MOUNT_BASE']
-
-  edx_platform_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + edx_platform_mount_dir
-  forum_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + forum_mount_dir
-  ora_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + ora_mount_dir
-
-end
+#edx_platform_mount_dir = "edx-platform"
+#forum_mount_dir = "cs_comments_service"
+#ora_mount_dir = "ora"
+#
+#if ENV['VAGRANT_MOUNT_BASE']
+#
+#  edx_platform_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + edx_platform_mount_dir
+#  forum_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + forum_mount_dir
+#  ora_mount_dir = ENV['VAGRANT_MOUNT_BASE'] + "/" + ora_mount_dir
+#
+#end
 
 
 Vagrant.configure("2") do |config|
 
   # Creates a devstack from a base Ubuntu 12.04 image
   config.vm.box = "upex-dev"
-  config.vm.box_url = "/home/apardo/iaen/repos/upex-builder/build/packer/upe-test-redis.box"
+  config.vm.box_url = "/home/apardo/iaen/repos/upex-builder/upex-dev.box"
 
   config.vm.network :private_network, ip: "192.168.33.10"
   config.vm.network :forwarded_port, guest: 8000, host: 8000
@@ -28,9 +28,9 @@ Vagrant.configure("2") do |config|
   config.ssh.username = "upex"
   config.vm.hostname = "upex-dev"
 
-  config.vm.synced_folder "#{edx_platform_mount_dir}", "/edx/app/edxapp/edx-platform", :create => true, nfs: true
-  config.vm.synced_folder "#{forum_mount_dir}", "/edx/app/forum/cs_comments_service", :create => true, nfs: true
-  config.vm.synced_folder "#{ora_mount_dir}", "/edx/app/ora/ora", :create => true, nfs: true
+  #config.vm.synced_folder "#{edx_platform_mount_dir}", "/edx/app/edxapp/edx-platform", :create => true, nfs: true
+  #config.vm.synced_folder "#{forum_mount_dir}", "/edx/app/forum/cs_comments_service", :create => true, nfs: true
+  #config.vm.synced_folder "#{ora_mount_dir}", "/edx/app/ora/ora", :create => true, nfs: true
 
   # Enable X11 forwarding so we can interact with GUI applications
   if ENV['VAGRANT_X11']

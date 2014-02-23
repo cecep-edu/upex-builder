@@ -6,19 +6,18 @@
     "home": "{{ env `HOME`}}"
   },
   "builders": [
-		{
+
+    {
       "type": "docker",
       "image": "ubuntu:12.04",
-      "export_path": "upex-dev.tar"
+      "export_path": "{{user `hostname`}}.tar"
     },
 
     {
-      "type": "virtualbox-iso",
-      "guest_os_type": "Ubuntu_64",
+      "type": "virtualbox-ovf",
 
-      "iso_url": "http://releases.ubuntu.com/12.04.4/ubuntu-12.04.4-server-amd64.iso",
-      "iso_checksum": "e83adb9af4ec0a039e6a5c6e145a34de",
-      "iso_checksum_type": "md5",     
+      "source_path": "/home/apardo/Documentos/vagrant_default_1393103546536_75801.ova",
+      "format": "ova",
 
       "vm_name": "{{user `home`}}",
 
@@ -28,19 +27,6 @@
       "ssh_key_path": "{{user `home`}}/.vagrant.d/insecure_private_key",
       "ssh_wait_timeout": "10000s",
       
-      "http_directory": "http",
-
-      "boot_wait": "4s",
-      "boot_command": [
-        "<esc><esc><enter><wait>",
-        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
-        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
-        "hostname={{user `hostname`}} <wait>",
-        "fb=false debconf/frontend=noninteractive <wait>",
-        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false <wait>",
-        "initrd=/install/initrd.gz -- <enter><wait>"
-      ],
-
       "headless": false,
 
       "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'upex'|sudo -S sh 'shutdown.sh'",
@@ -71,27 +57,71 @@
 
       "inline": [
         "sleep 30",
-        "echo 'upex ALL=NOPASSWD:ALL' > /tmp/upex",
-        "chmod 0440 /tmp/upex",
-        "mv /tmp/upex /etc/sudoers.d/",
         "sudo apt-get update -y",
         "sudo apt-get upgrade -y",
-        "sudo apt-get install build-essential -y",
-        "sudo apt-get install ansible -y",
         "sudo apt-get clean"
       ]
     },
     {
       "type": "ansible-local",
       "playbook_file": "configuration/playbooks/vagrant-devstack.yml",
-      "playbook_paths": ["configuration/playbooks"],
-      "role_paths": ["configuration/playbooks/roles/*"]
+      "extra_arguments": ["-vvv"],
+      "library_paths": ["configuration/playbooks/library"],
+      "role_paths": ["configuration/playbooks/roles/analytics",
+                      "configuration/playbooks/roles/analytics-server",
+                      "configuration/playbooks/roles/ansible_debug",
+                      "configuration/playbooks/roles/ansible-role",
+                      "configuration/playbooks/roles/apache",
+                      "configuration/playbooks/roles/automated",
+                      "configuration/playbooks/roles/aws/",
+                      "configuration/playbooks/roles/browsers",
+                      "configuration/playbooks/roles/certs",
+                      "configuration/playbooks/roles/common",
+                      "configuration/playbooks/roles/datadog",
+                      "configuration/playbooks/roles/demo",
+                      "configuration/playbooks/roles/devpi",
+                      "configuration/playbooks/roles/discern",
+                      "configuration/playbooks/roles/edx_ansible",
+                      "configuration/playbooks/roles/edxapp",
+                      "configuration/playbooks/roles/edxlocal",
+                      "configuration/playbooks/roles/edx_service",
+                      "configuration/playbooks/roles/elasticsearch",
+                      "configuration/playbooks/roles/forum",
+                      "configuration/playbooks/roles/gerrit",
+                      "configuration/playbooks/roles/gh_mirror",
+                      "configuration/playbooks/roles/gh_users",
+                      "configuration/playbooks/roles/gluster",
+                      "configuration/playbooks/roles/haproxy",
+                      "configuration/playbooks/roles/in_production",
+                      "configuration/playbooks/roles/jenkins_master",
+                      "configuration/playbooks/roles/jenkins_worker",
+                      "configuration/playbooks/roles/launch_ec2",
+                      "configuration/playbooks/roles/legacy_ora",
+                      "configuration/playbooks/roles/local_dev",
+                      "configuration/playbooks/roles/mongo",
+                      "configuration/playbooks/roles/nginx",
+                      "configuration/playbooks/roles/notifier",
+                      "configuration/playbooks/roles/ora",
+                      "configuration/playbooks/roles/oraclejdk",
+                      "configuration/playbooks/roles/rabbitmq",
+                      "configuration/playbooks/roles/rbenv",
+                      "configuration/playbooks/roles/s3fs",
+                      "configuration/playbooks/roles/shibboleth",
+                      "configuration/playbooks/roles/splunkforwarder",
+                      "configuration/playbooks/roles/stop_all_edx_services",
+                      "configuration/playbooks/roles/supervisor",
+                      "configuration/playbooks/roles/xqueue",
+                      "configuration/playbooks/roles/xserver"
+                    ]
+
+
+
     }
   ], 
   "post-processors": [
     {
       "type": "vagrant",
-      "only": ["virtualbox-iso"]
+      "only": ["virtualbox-ovf"]
     }
   ]
 }
