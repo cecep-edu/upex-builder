@@ -3,7 +3,8 @@
     "ssh_user": "upex",
     "ssh_pass": "upex",
     "hostname": "upex-dev",
-    "home": "{{ env `HOME`}}"
+    "home": "{{ env `HOME`}}",
+    "apt_proxy": "192.168.20.27:3142"
   },
   "builders": [
 
@@ -14,10 +15,12 @@
     },
 
     {
-      "type": "virtualbox-ovf",
+      "type": "virtualbox-iso",
+      "guest_os_type": "Ubuntu_64",
 
-      "source_path": "/home/apardo/Documentos/vagrant_default_1393103546536_75801.ova",
-      "format": "ova",
+      "iso_url": "http://releases.ubuntu.com/12.04.4/ubuntu-12.04.4-server-amd64.iso",
+      "iso_checksum": "e83adb9af4ec0a039e6a5c6e145a34de",
+      "iso_checksum_type": "md5",     
 
       "vm_name": "{{user `home`}}",
 
@@ -27,6 +30,19 @@
       "ssh_key_path": "{{user `home`}}/.vagrant.d/insecure_private_key",
       "ssh_wait_timeout": "10000s",
       
+      "http_directory": "http",
+
+      "boot_wait": "4s",
+      "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
+        "hostname={{user `hostname`}} <wait>",
+        "fb=false debconf/frontend=noninteractive <wait>",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false <wait>",
+        "initrd=/install/initrd.gz -- <enter><wait>"
+      ],
+
       "headless": false,
 
       "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'upex'|sudo -S sh 'shutdown.sh'",
@@ -48,7 +64,6 @@
       "virtualbox_version_file": ".vbox_version"
     }
 
-
   ],
   "provisioners": [
     {
@@ -57,6 +72,10 @@
 
       "inline": [
         "sleep 20",
+        "echo 'upex ALL=(ALL:ALL) NOPASSWD: ALL' > /tmp/upex",
+        "chmod 0440 /tmp/upex",
+        "mv /tmp/upex /etc/sudoers.d/",
+        "echo 'Acquire::http::Proxy \"http://{{user `apt_proxy`}}\";' >> /etc/apt/apt.conf",
         "sudo apt-mark hold initscripts",
         "sudo apt-get update -y",
         "sudo apt-get upgrade -y",
@@ -129,7 +148,7 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "only": ["virtualbox-ovf"],
+      "only": ["virtualbox-iso"],
       "output": "{{user `hostname`}}-{{.Provider}}.box"
     }
   ]
