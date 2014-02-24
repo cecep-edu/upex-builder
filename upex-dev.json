@@ -15,6 +15,12 @@
     },
 
     {
+      "type": "lxc",
+      "image": "upex-base",
+      "export_path": "{{user `hostname`}}-{{.Provider}}.tar"
+    },
+
+    {
       "type": "virtualbox-iso",
       "guest_os_type": "Ubuntu_64",
 
@@ -76,7 +82,6 @@
         "chmod 0440 /tmp/upex",
         "mv /tmp/upex /etc/sudoers.d/",
         "echo 'Acquire::http::Proxy \"http://{{user `apt_proxy`}}\";' >> /etc/apt/apt.conf",
-        "sudo apt-mark hold initscripts",
         "sudo apt-get update -y",
         "sudo apt-get upgrade -y",
         "sudo apt-get install -y python-software-properties",
