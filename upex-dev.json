@@ -10,7 +10,7 @@
     {
       "type": "docker",
       "image": "ubuntu:12.04",
-      "export_path": "{{user `hostname`}}.tar"
+      "export_path": "{{user `hostname`}}-{{.Provider}}.tar"
     },
 
     {
@@ -56,10 +56,18 @@
       "execute_command": "echo 'upex' | sudo -S sh '{{ .Path }}'",
 
       "inline": [
-        "sleep 30",
+        "sleep 20",
+        "sudo apt-mark hold initscripts",
         "sudo apt-get update -y",
         "sudo apt-get upgrade -y",
-        "sudo apt-get clean"
+        "sudo apt-get install -y python-software-properties",
+        "sudo add-apt-repository -y ppa:rquillo/ansible",
+        "sudo apt-get update -y",
+        "sudo apt-get install -y ansible",
+        "sudo apt-get install -y wget",
+        "sudo apt-get clean",
+        "sudo mv /etc/ansible/ansible.cfg /etc/ansible/ansible.cfg.orig",
+        "sudo wget --no-check-certificate -O /etc/ansible/ansible.cfg https://raw2.github.com/apardo/configuration/master/playbooks/ansible.cfg"
       ]
     },
     {
@@ -121,7 +129,8 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "only": ["virtualbox-ovf"]
+      "only": ["virtualbox-ovf"],
+      "output": "{{user `hostname`}}-{{.Provider}}.box"
     }
   ]
 }
